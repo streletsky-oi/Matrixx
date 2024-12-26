@@ -1,100 +1,131 @@
-#include "vector.h"
 #pragma once
-#include "Vector.h"
-
-template <class T>
-class Matrix: public Vector<Vector<T>>
+#include <cmath>
+#include <algorithm>
+#include <iostream>
+using namespace std;
+//перегрузить оператор + - *(скалярное произведение). Длина вектора. Нормализация вектора. Конструкторы копирования и присваивания(подумать не делать).
+template<class T>
+class Vector
 {
-private:
-    int _deg = 1;
+protected:
+    T* _array;
+    size_t _size;
+    size_t _startIndex;
 public:
-    Matrix(size_t n): Vector<Vector<T>>(n, 0)
-    {
-        for(size_t i = 0; i<n; i++){
-            this->_array[i] = Vector<T>(n-i,i);
-        } 
+    Vector() : _size(10), _startIndex(0){
+        _array = new T[_size];
+        for (int i = 0; i < _size; i++){
+            _array[i] = 0;
+        }
     }
+
+    Vector(size_t size, size_t startIndex){
+        _array = new T[size];
+        _size = size;
+        _startIndex = startIndex;
+        for (int i = 0; i < _size; i++){
+            _array[i] = 0;
+        }
+    };
     
-    Matrix(const Matrix& mt):Vector<Vector<T>>(mt) {}
-
-    Matrix(const Vector<Vector<T>>& vv):Vector<Vector<T>>(vv) {}
-
-    
-    Matrix& operator=(const Matrix& mt){
-        return Vector<Vector<T>>::operator=(mt);
-    }
-
-    Matrix operator+(const Matrix& mt){
-        return Vector<Vector<T>>::operator+(mt);
-    }
-
-    Matrix operator-(const Matrix& mt){
-        return Vector<Vector<T>>::operator-(mt);
-    }
-
-    void operator/(const T& elem){
-        for (int i = 0; i < this->_size; i++){
-            this->_array[i] = this->_array[i]/elem;
+    Vector(size_t size) : _size(size), _startIndex(0){
+        _array = new T[_size];
+        for (int i = 0; i < _size; i++){
+            _array[i] = 0;
         }
     }
 
-    void PowTo_1(){
-        _deg = -1;
-        T det;
-        Vector<T> tmp_vec;
-        Matrix<double> res(*this);
-        for(size_t i = 0;i < this->_size; i++){
-            Vector<double> tmp(this->_array[i].GetSize());
-            for (size_t j = 0;j < this->_array[i].GetSize(); j++)
-                if(i == j){ tmp[j] = 1/res._array[i].GetElem(0);}                
-                else if (i != 0 && i != this->GetSize()) {tmp[j] = res._array[i].GetElem(1)/(res._array[i-1].GetElem(0)*res._array[i].GetElem(0)) ;} 
-            this->_array[i] = tmp;
+    Vector(size_t size, size_t startIndex, T* array) : _size(size), _array(new T[size]), _startIndex(startIndex){
+        for (int i = 0; i < _size; i++){
+            _array[i] = array[i];
         }
-
     }
 
-    Matrix operator*(const Matrix& mt) {
-        if (this->_size != mt._size) {
-            throw invalid_argument("Matrices have incompatible sizes for multiplication.");
+    Vector(const Vector<T>& vec) : _size(vec._size), _array(new T[vec._size]){
+        for (int i = 0; i < _size; i++){
+            _array[i] = vec._array[i];
         }
-
-        Matrix result(this->_size);
-
-        for (size_t i = 0; i < this->_size; i++) { 
-            for (size_t j = i; j < this->_size; j++) { 
-                T sum = 0;
-
-                for (size_t k = i; k <= j; k++) {
-                    if ((k - i) < this->_array[i].GetSize() && (j - k) < mt._array[k].GetSize()) {
-                        sum += this->_array[i][k - i] * mt._array[k][j - k];
-                    }
-                }
-
-                result._array[i][j - i] = sum; 
-            }
-        }
-
-        return result;
     }
 
-    // ввод / вывод
-    friend istream& operator>>(istream& in, Matrix& mt)
+    Vector(Vector<T>&& vec) noexcept : _array(vec._array), _size(vec._size), _startIndex(vec._startIndex) {
+        cout << "ABOBA";
+        vec._array = nullptr;
+        vec._size = 0;
+        vec._startIndex = 0;
+}
+
+    size_t GetSize() const{
+       return _size; 
+    };
+
+    ~Vector(){
+        delete [] _array;
+        _array = nullptr;
+    }
+
+    T& GetElem(size_t i){
+        if (i >= _size){
+            throw "Out of range";
+        }
+        return _array[i];
+    };
+
+    size_t GetStartIndex() const{
+        return _startIndex;
+    };
+
+    Vector operator+(const T& tmp) const{
+        Vector ans(*this);
+        for (size_t i = 0; i < _size; i++)
+            ans[i] += tmp;
+        return ans;
+    };
+    Vector operator-(const T& tmp) const{
+        Vector ans(*this);
+        for (size_t i = 0; i < _size; i++)
+            ans[i] -= tmp;
+        return ans;
+    };
+
+    Vector operator*(const T& tmp) const{
+        Vector ans(*this);
+        for (size_t i = 0; i < _size; i++)
+            ans[i] *= tmp;
+        return ans;
+    };
+
+
+    Vector& operator=(const Vector<T>& vec){
+        _size = vec._size;
+        _startIndex = vec._startIndex;
+        delete [] _array;
+        _array = nullptr;
+        _array = new T[_size];
+        for (int i = 0; i < _size; i++){
+            _array[i] = vec._array[i];
+        }
+        return *this;
+    }
+
+    T& operator[](int index){
+        return _array[index];
+    }
+
+    friend istream& operator>>(istream& in, Vector& vec)
     {
-        for (int i = 0; i < mt._size; i++)
-            in >> mt._array[i];
+        for (int i = 0; i < vec._size; i++)
+            in >> vec._array[i];
         return in;
     }
-    friend ostream& operator<<(ostream& os, const Matrix& mt)
-    {
 
-
-        for (int i = 0; i < mt._size; i++){
-            os << "|";
-            for (size_t j = 0; j < i; j++) os << "0 ";
-            os << mt._array[i] << "|" << endl;
+    friend std::ostream& operator<<(std::ostream& os, const Vector& tmp){
+        for (int i = 0; i < tmp._size; i++){
+            os << tmp._array[i];
+            if (i + 1 != tmp._size) os << ", ";
         }
-        
-
         return os;
     }
+
+
+   
 };
