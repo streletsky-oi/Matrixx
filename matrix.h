@@ -3,10 +3,10 @@
 
 
 template <class T>
-class Matrix : public Vector<Vector<T>>
+class Matrix : public Vector<Vector<T>>// наследуем 
 {
 public:
-    Matrix (size_t n) : Vector<Vector<T>>(n,0){
+    Matrix (size_t n) : Vector<Vector<T>>(n,0){  //конструктор с размером н и инициализация класса вектор
         for (size_t i = 0; i < n; i++){
             this->_array[i] = Vector<T> (n-i, i);
         }
@@ -16,7 +16,8 @@ public:
     }                    // копирование
     Matrix(const Vector<Vector<T> >& mt) : Vector<Vector<T>>(mt){
 
-    } // преобразование типа
+    } // преобразование типа из векторов в матрицу
+
     Matrix& operator= (const Matrix& mt){
         this->_size = mt._size;
         this->_startIndex = mt._startIndex;
@@ -29,7 +30,7 @@ public:
         return *this;
    }        // присваивание
     Matrix  operator+ (const Matrix& mt){
-        return Vector<Vector<int>> :: operator+(mt);
+        return Vector<Vector<int>> :: operator+(mt); // уже реализовано в векторах
     }        // сложение
     Matrix  operator- (const Matrix& mt){
         return Vector<Vector<int>> :: operator-(mt);
