@@ -8,8 +8,8 @@ template<class T>
 class Vector
 {
 protected:
-    T* _array;
-    size_t _size;
+    T* _array; // массив произвольных данных
+    size_t _size; // размер
     size_t _startIndex;
 public:
     Vector() : _size(10), _startIndex(0){ //баз конструктора
@@ -19,7 +19,7 @@ public:
         }
     }
 
-    Vector(size_t size, size_t startIndex){ //конструктор баз с размером и индексом
+    Vector(size_t size, size_t startIndex){ //конструктор баз с размером и старт индексом
         _array = new T[size];
         _size = size;
         _startIndex = startIndex;
@@ -28,7 +28,7 @@ public:
         }
     };
     
-    Vector(size_t size) : _size(size), _startIndex(0){ //баз конструктор с ращмепром
+    Vector(size_t size) : _size(size), _startIndex(0){ //баз конструктор с размепром
         _array = new T[_size];
         for (int i = 0; i < _size; i++){
             _array[i] = 0;
@@ -47,10 +47,10 @@ public:
         }
     }
 
-    Vector(Vector<T>&& vec) noexcept : _array(vec._array), _size(vec._size), _startIndex(vec._startIndex) {
-        cout << "ABOBA";
+    Vector(Vector<T>&& vec) noexcept : _array(vec._array), _size(vec._size), _startIndex(vec._startIndex) {// конструктор перемещения а ноуэкспет не выкидывает исключения
+        cout << "перемещение";
         vec._array = nullptr;
-        vec._size = 0;
+        vec._size = 0;//обнуляем данные у старого объекта
         vec._startIndex = 0;
 }
 
@@ -60,7 +60,7 @@ public:
 
     ~Vector(){ //деструктор
         delete [] _array;
-        _array = nullptr;
+        _array = nullptr;// еще раз для чего?
     }
 
     T& GetElem(size_t i){ //метод функция получит элемент под индексом
@@ -99,7 +99,7 @@ public:
         _size = vec._size;
         _startIndex = vec._startIndex;
         delete [] _array;
-        _array = nullptr; ?
+        _array = nullptr; ?&&&&???
         _array = new T[_size];
         for (int i = 0; i < _size; i++){
             _array[i] = vec._array[i];
